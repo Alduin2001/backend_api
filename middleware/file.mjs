@@ -29,7 +29,6 @@ const upload = multer({
 const deleteFileMiddleware = (file)=>{
     try{
         fs.unlink(path.join(__dirname,'../uploads',file));
-        next();
     }catch(err){
         console.log(err);
     }
