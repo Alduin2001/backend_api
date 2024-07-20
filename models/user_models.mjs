@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt, { genSaltSync, hash } from 'bcrypt';
+import crypto from 'crypto';
 const userSchema = new mongoose.Schema({
     name:{
         type:String,
@@ -22,6 +23,13 @@ const userSchema = new mongoose.Schema({
         type:String,
         default:'user'
     },
+    verificationToken:{
+        type:String
+    },
+    verifyed:{
+        type:Boolean,
+        default:false
+    },
     dateRegister:{
         type:Date,
         default:Date.now()
@@ -33,7 +41,9 @@ userSchema.pre('save',function(next){
     if(!user.isModified()){
         next();
     }
+    const cryptoToken = crypto.randomBytes(20).toString('hex');
     const salt = genSaltSync(10);
+    user.verificationToken = cryptoToken;
     user.password = hash(user.password,salt);
     next();
 });
