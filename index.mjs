@@ -1,0 +1,12 @@
+import Express from 'express';
+import connectionDB from './config/connection.mjs';
+import cors from 'cors';
+import helmet from 'helmet';
+import router from './routes/index.mjs';
+connectionDB();
+const app = Express();
+const port = process.env.PORT;
+app.use(Express.json());
+app.use(cors());
+app.use(router);
+app.listen(port,err=>err ? console.log(err) : console.log(`The server started at ${port}`));
