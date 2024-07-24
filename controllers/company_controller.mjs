@@ -21,7 +21,7 @@ export default class CompanyController{
         }
     }
     static async read(req,res){
-
+        
     }
     static async update(req,res){
 
