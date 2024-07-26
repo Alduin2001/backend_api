@@ -9,4 +9,5 @@ const port = process.env.PORT;
 app.use(Express.json());
 app.use(cors());
 app.use(router);
+app.use(helmet());
 app.listen(port,err=>err ? console.log(err) : console.log(`The server started at ${port}`));
