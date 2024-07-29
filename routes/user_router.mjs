@@ -5,7 +5,7 @@ import AuthMiddleware from "../middleware/auth-middleware.mjs";
 const userRouter = Router();
 userRouter.post('/create/',UserController.create);
 userRouter.post('/login',UserController.login);
-userRouter.get('/read/',AuthMiddleware.isAuth,UserController.read);
+userRouter.get('/read/',UserController.read);
 userRouter.get('/read/:id',UserController.readOne);
 userRouter.put('/update/:id',UserController.update);
 userRouter.delete('/delete/:id',UserController.delete);
