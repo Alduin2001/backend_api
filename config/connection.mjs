@@ -6,6 +6,7 @@ async function connectionDB() {
     await mongoose.connect(process.env.DB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      maxPoolSize:10
     });
     console.log('Connected to MongoDB');
   } catch (err) {
