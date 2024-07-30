@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import crypto from 'crypto';
+import Product from "./products.mjs";
 const companySchema = new mongoose.Schema({
     INN:{
         type:String,
@@ -27,7 +28,13 @@ const companySchema = new mongoose.Schema({
     isVerified:{
         type:Boolean,
         default:false
-    }
+    },
+    products:[
+        {
+            type:Schema.Types.ObjectId,
+            ref:'Product'
+        }
+    ]
 });
 companySchema.pre('save',function(next){
     const company = this;
@@ -39,5 +46,10 @@ companySchema.pre('save',function(next){
     next();
 });
 
+companySchema.pre('remove',async function(next){
+    const company = this;
+    await Product.deleteMany({company:company._id});
+    next();
+});
 const Company = mongoose.model('Company',companySchema);
 export default Company;

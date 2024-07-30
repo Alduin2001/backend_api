@@ -62,6 +62,10 @@ export default class ProductController{
         }
     }
     static async delete(req,res){
-
+        try {
+            
+        } catch (error) {
+            
+        }
     }
 }
