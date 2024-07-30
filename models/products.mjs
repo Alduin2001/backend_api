@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import User from "./user_models.mjs";
+import Company from "./company_model.mjs";
 
 const productSchema = new mongoose.Schema({
   name: {
@@ -7,6 +8,10 @@ const productSchema = new mongoose.Schema({
     required: true,
   },
   category: {},
+  company:{
+    type:Schema.Types.ObjectId,
+    ref:'Company'
+  },
   description: {
     type: String,
     required: true,

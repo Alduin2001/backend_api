@@ -3,11 +3,12 @@ import getDataFromToken from "../config/get_from_token.mjs";
 export default class ProductController{
     static async create(req,res){
         try {
-            const {name,description,price} = req.body;
+            const {name,description,price,company} = req.body;
             const product = new Product({
                 name:name,
                 description:description,
-                price:price
+                price:price,
+                company:company
             });
             await product.save();
             res.status(201).json({msg:'Продукт добавлен'});
@@ -44,7 +45,7 @@ export default class ProductController{
             const id = req.params.id;
             const decoded = getDataFromToken(token);
             const favourite = await Product.findByIdAndUpdate(id,{$push:{isFavourite:decoded._id}});
-            res.status(200).json({msg:'Вы успешно добавили'});
+            res.status(200).json({msg:'Вы успешно добавили в избранное'});
         } catch (error) {
             res.status(500).json({error});
         }
