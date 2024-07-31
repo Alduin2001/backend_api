@@ -5,10 +5,11 @@ import bcrypt from 'bcrypt';
 export default class UserController{
     static async create(req,res){
         try {
-            const {name,surname,login,password} = req.body;
+            const {name,surname,patronymic,login,password} = req.body;
             const user = new User({
                 name,
                 surname,
+                patronymic,
                 login,
                 password
             });
@@ -39,8 +40,14 @@ export default class UserController{
     }
     static async read(req,res){
         try{
-            const users = await User.find({});
-            res.status(201).json({users:users});
+            const page = req.query.page || 1;
+            const limit = 1;
+            const skip = (page - 1) * limit;
+            const totalCount = await User.countDocuments();
+            const users = await User.aggregate([
+                {$project:{'name':1,'surname':1,'patronymic':1,'login':1,'role':1}}
+            ]).skip(skip).limit(limit);
+            res.status(201).json({users:users, page: page, pages: Math.ceil(totalCount/limit)});
 
         }catch(err){
             res.status(500).json({msg:err});
@@ -48,9 +55,12 @@ export default class UserController{
     }
     static async readOne(req,res){
         try{
-            const id = req.params.id;
-            const user = await User.findById(id);
-            res.status(201).json({user:user});
+            const id = req.params.id;            
+            const user = await User.findById(id,'name surname patronymic login role').lean();
+            if(!user){
+                res.status(400).json({msg:'Не найдено'});
+            }
+            res.status(201).json({user});
         }catch(err){
             res.status(500).json({msg:err});
         }
@@ -58,10 +68,15 @@ export default class UserController{
     static async update(req,res){
         try {
             const id = req.params.id;
-            const user = await User.findByIdAndUpdate(id,req.body,{new:true});
-            res.status(201).json({msg:'Данные обновлены'});
+            const {name,surname,patronymic, login} = req.body;
+            const findedUniqueLogin = await User.find({login});
+            if(findedUniqueLogin){
+                res.status(400).json({msg:'Такой пользователь уже существует'});
+            }
+            const user = await User.findByIdAndUpdate(id,{name,surname,patronymic,login});
+            res.status(200).json({msg:'Данные обновлены'});
         } catch (error) {
-            res.status(500).json({msg:error});
+            res.status(500).json({error});
         }
     }
     static async delete(req,res){
