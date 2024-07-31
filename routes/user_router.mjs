@@ -7,7 +7,6 @@ userRouter.post('/create/',UserController.create);
 userRouter.post('/login',UserController.login);
 userRouter.get('/read/',UserController.read);
 userRouter.get('/read/:id',UserController.readOne);
-userRouter.put('/update/:id',UserController.update);
 userRouter.delete('/delete/:id',UserController.delete);
 
 export default userRouter;

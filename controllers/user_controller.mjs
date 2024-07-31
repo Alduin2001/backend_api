@@ -65,20 +65,20 @@ export default class UserController{
             res.status(500).json({msg:err});
         }
     }
-    static async update(req,res){
-        try {
-            const id = req.params.id;
-            const {name,surname,patronymic, login} = req.body;
-            const findedUniqueLogin = await User.find({login});
-            if(findedUniqueLogin){
-                res.status(400).json({msg:'Такой пользователь уже существует'});
-            }
-            const user = await User.findByIdAndUpdate(id,{name,surname,patronymic,login});
-            res.status(200).json({msg:'Данные обновлены'});
-        } catch (error) {
-            res.status(500).json({error});
-        }
-    }
+    // static async update(req,res){
+    //     try {
+    //         const id = req.params.id;
+    //         const {name,surname,patronymic, login} = req.body;
+    //         const findedUniqueLogin = await User.find({login});
+    //         if(findedUniqueLogin){
+    //             res.status(400).json({msg:'Такой пользователь уже существует'});
+    //         }
+    //         const user = await User.findByIdAndUpdate(id,{name,surname,patronymic,login});
+    //         res.status(200).json({msg:'Данные обновлены'});
+    //     } catch (error) {
+    //         res.status(500).json({error});
+    //     }
+    // }
     static async delete(req,res){
         try{
             const id = req.params.id;
