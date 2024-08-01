@@ -10,7 +10,7 @@ export default class UserController{
                 name,
                 surname,
                 patronymic,
-                login,
+                email,
                 password
             });
             await user.save();
@@ -22,7 +22,10 @@ export default class UserController{
     static async verifycationFromEmail(req,res){
         try{
             const verificationToken = req.params.token;
-            const user = await User.find({verificationToken});
+            let user = await User.findOne({verificationToken});
+            if(!user){
+                return res.status(404).json({msg:'Пользователя не существует'});
+            }
             user.verifyed = true;
             await user.save();
             res.status(200).json({msg:'Ваша почта подтверждена'});
@@ -33,7 +36,7 @@ export default class UserController{
     static async login(req,res){
         try {
             const {login,password} = req.body;
-            const findUser = await User.find({login:login,verifyed:true});
+            const findUser = await User.findOne({login:login,verifyed:true});
             if(!findUser || bcrypt.compareSync(password,findUser.password)){
                 res.status(400).json({msg:'Неправильный логин или пароль'});
             }
@@ -43,27 +46,32 @@ export default class UserController{
                 surname:findUser.surname,
                 login:findUser.login
             };
-            const token = setToken(tokenData);
+            const token = await setToken(tokenData);
             res.status(200).json({token:token});
         } catch (error) {
             res.status(500).json({msg:error});
         }
     }
-    static async read(req,res){
-        try{
-            const page = req.query.page || 1;
-            const limit = 1;
-            const skip = (page - 1) * limit;
-            const totalCount = await User.countDocuments();
-            const users = await User.aggregate([
-                {$project:{'name':1,'surname':1,'patronymic':1,'login':1,'role':1}}
-            ]).skip(skip).limit(limit);
-            res.status(201).json({users:users, page: page, pages: Math.ceil(totalCount/limit)});
+        static async read(req,res){
+            try{
+                const page = parseInt(req.query.page) || 1;
+                const limit = 1;
+                const skip = (page - 1) * limit;
+                const totalCount = await User.countDocuments();
+                const users = await User.aggregate([
+                    {$project:{'_id':1,'name':1,'surname':1,'patronymic':1,'login':1,'role':1}},
+                    {$skip:skip},
+                    {$limit:limit}
+                ]);
+                if(users.length===0){
+                    return res.status(404).json({msg:'Пользователи не найдены'});
+                }
+                res.status(201).json({users:users, page: page, pages: Math.ceil(totalCount/limit)});
 
-        }catch(err){
-            res.status(500).json({msg:err});
+            }catch(err){
+                res.status(500).json({msg:err});
+            }
         }
-    }
     static async readOne(req,res){
         try{
             const id = req.params.id;            
