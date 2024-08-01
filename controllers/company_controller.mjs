@@ -1,17 +1,20 @@
 import Company from "../models/company_model.mjs";
 import generatePhrase from "../config/seed_phrase.mjs";
+import { setToken } from "../config/token_methods.mjs";
 export default class CompanyController{
 
     static async create(req,res){
         try {
-            const {INN,OGRN,email,phone} = req.body;
+            const {INN,OGRN,email,name,phone,dateRegister} = req.body;
             const seed = generatePhrase(5);
             const company = new Company({
                 INN:INN,
                 OGRN:OGRN,
+                name:name,
                 email:email,
                 phone:phone,
-                seed:seed
+                seed:seed,
+                dateRegister:dateRegister
             });
             await company.save();
             res.status(201).json({seed});
@@ -20,10 +23,54 @@ export default class CompanyController{
             res.status(500).json({error});
         }
     }
+    static async login(req,res){
+        const {email, seed} = req.body;
+        const company = await Company.aggregate([
+            {
+                $match:{email:email,seed:seed,isVerified:true}
+            },
+            {
+                $project:{
+                    _id:1,
+                    name:1,
+                    INN:1,
+                    OGRN:1,
+                    email:1,
+                    phone:1
+                }
+            }
+        ]);
+        if(company.length===0){
+            return res.status(404).json({msg:'Неверно введены данные'});
+        }else{
+            const payload = {
+                _id:company[0]._id,        
+                name:company[0].name,
+                INN:company[0].INN,
+                OGRN:company[0].OGRN,
+                email:company[0].email,
+                phone:company[0].phone
+            };
+            const token = await setToken(payload);
+            console.log(token);
+            return res.status(200).json({token});
+        }
+    }
     static async read(req,res){
         try {
-            const companies = await Company.find({});
-            res.status(200).json({companies});
+            // Поиск по названию
+            const companies = await Company.aggregate([
+                {
+                    $project:{
+                        _id:1,
+                        INN:1,
+                        OGRN:1,
+                        email:1,
+                        phone:1
+                    }
+                }
+            ]);
+            return res.status(200).json({companies});
         } catch (error) {
             res.status(500).json({error});
         }
@@ -32,20 +79,24 @@ export default class CompanyController{
         try {
             const id = req.params.id;
             const company = await Company.findById(id);
-            company ? res.status(200).json({company}) : res.status(200).json({msg:'Не найдено'});
+            if(company){
+                return res.status(200).json({company});
+            }else{
+                return res.status(404).json({msg:'Не найдено'});
+            }
         } catch (error) {
             res.status(500).json({error});
         }
     }
-    static async update(req,res){
-        try {
-            const id = req.params.id;
-            const company = await Company.findByIdAndUpdate(id,req.body,{new:true});
-            res.status(200).json({msg:'Успешно обновлён'});
-        } catch (error) {
-            res.status(500).json({error});
-        }
-    }
+    // static async update(req,res){
+    //     try {
+    //         const id = req.params.id;
+    //         const company = await Company.findByIdAndUpdate(id,req.body,{new:true});
+    //         res.status(200).json({msg:'Успешно обновлён'});
+    //     } catch (error) {
+    //         res.status(500).json({error});
+    //     }
+    // }
     static async delete(req,res){
         try {
             const id = req.params.id;

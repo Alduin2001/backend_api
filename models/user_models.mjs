@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    login:{
+    email:{
         type:String,
         required:true,
         unique:true
@@ -28,7 +28,8 @@ const userSchema = new mongoose.Schema({
         default:'user'
     },
     verificationToken:{
-        type:String
+        type:String,
+        index:true
     },
     verifyed:{
         type:Boolean,

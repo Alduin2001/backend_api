@@ -9,6 +9,10 @@ const companySchema = new mongoose.Schema({
     OGRN:{
         type:String
     },
+    name:{
+        type:String,
+        required:true
+    },
     email:{
         type:String,
         required:true,
@@ -28,6 +32,10 @@ const companySchema = new mongoose.Schema({
     isVerified:{
         type:Boolean,
         default:false
+    },
+    dateRegister:{
+        type:Date,
+        required:true
     },
     products:[
         {

@@ -1,5 +1,5 @@
 import Product from "../models/products.mjs";
-import getDataFromToken from "../config/get_from_token.mjs";
+import {getDataFromToken} from "../config/token_methods.mjs";
 export default class ProductController {
   static async create(req, res) {
     try {

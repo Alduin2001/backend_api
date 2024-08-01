@@ -8,10 +8,6 @@ const categorySchema = new mongoose.Schema({
         unique:true,
         index:true
     },
-    description:{
-        type:String,
-        required:true
-    },
     products:[
         {
             type:Schema.Types.ObjectId,
