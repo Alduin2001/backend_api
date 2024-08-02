@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save',function(next){
     const user = this;
-    if(!user.isModified()){
+    if(!user.password.isModified()){
         next();
     }
     const cryptoToken = crypto.randomBytes(20).toString('hex');
