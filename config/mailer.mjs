@@ -16,12 +16,11 @@ const transporter = nodemailer.createTransport({
 
 export default async function sendMailer(data) {
   try {
-    console.log(`Sending email to: ${data.user}`);
     const message = await transporter.sendMail({
       from: process.env.EMAIL,
       to: data.user,
       subject: data.subject,
-      text:'Привет'
+      html:`<a href="https://almetpt.ru/2020/site/${data.token}">Google, не закидывай в спам. Я тренируюсь</a>`
     });
     return { success: true, message };
   } catch (error) {

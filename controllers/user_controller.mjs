@@ -7,25 +7,29 @@ export default class UserController {
   static async create(req, res) {
     try {
       const { name, surname, patronymic, email, password } = req.body;
+      const user = new User({
+        name,
+        surname,
+        patronymic,
+        email,
+        password
+      });
+      await user.save();
+
       const mail = await sendMailer({
         user: email,
         subject: "Для подтверждения",
+        verificationToken: user.verificationToken, // Добавьте это поле в sendMailer
       });
-      // if(mail.success){
-      //   const user = new User({
-      //       name,
-      //       surname,
-      //       patronymic,
-      //       email,
-      //       password,
-      //     });
-      //     await user.save();
-      //     return res.status(201).json({ msg: "Пользователь успешно создан" });  
-      // }else{
-      //   console.log(mail.error);
-      // }
+
+      if (mail.success) {
+        return res.status(201).json({ msg: "Пользователь успешно создан" });
+      } else {
+        console.log(mail.error);
+        return res.status(500).json({ msg: "Ошибка при отправке письма" });
+      }
     } catch (error) {
-      res.status(500).json({ msg: error });
+      res.status(500).json({ msg: error.message });
     }
   }
   static async verifycationFromEmail(req, res) {
@@ -44,8 +48,8 @@ export default class UserController {
   }
   static async login(req, res) {
     try {
-      const { login, password } = req.body;
-      const findUser = await User.findOne({ login: login, verifyed: true });
+      const { email, password } = req.body;
+      const findUser = await User.findOne({ email: email, verifyed: true });
       if (!findUser || bcrypt.compareSync(password, findUser.password)) {
         res.status(400).json({ msg: "Неправильный логин или пароль" });
       }

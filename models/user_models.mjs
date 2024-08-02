@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt, { genSaltSync, hash } from 'bcrypt';
+import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 const userSchema = new mongoose.Schema({
     name:{
@@ -41,15 +41,15 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-userSchema.pre('save',function(next){
+userSchema.pre('save',async function(next){
     const user = this;
-    if(!user.password.isModified()){
+    if(!user.isModified('password')){
         next();
     }
     const cryptoToken = crypto.randomBytes(20).toString('hex');
-    const salt = genSaltSync(10);
+    const salt = await bcrypt.genSalt(10);
     user.verificationToken = cryptoToken;
-    user.password = hash(user.password,salt);
+    user.password = await bcrypt.hash(user.password,salt);
     next();
 });
 const User = mongoose.model('User',userSchema);
