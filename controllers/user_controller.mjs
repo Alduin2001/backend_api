@@ -9,22 +9,21 @@ export default class UserController {
       const { name, surname, patronymic, email, password } = req.body;
       const mail = await sendMailer({
         user: email,
-        subject: "Для подтверждения почты перейдите по ссылке",
+        subject: "Для подтверждения",
       });
-      if(mail.success){
-        const user = new User({
-            name,
-            surname,
-            patronymic,
-            email,
-            password,
-          });
-          await user.save();
-          return res.status(201).json({ msg: "Пользователь успешно создан" });  
-      }else{
-        console.log(mail.error);
-      }
-      
+      // if(mail.success){
+      //   const user = new User({
+      //       name,
+      //       surname,
+      //       patronymic,
+      //       email,
+      //       password,
+      //     });
+      //     await user.save();
+      //     return res.status(201).json({ msg: "Пользователь успешно создан" });  
+      // }else{
+      //   console.log(mail.error);
+      // }
     } catch (error) {
       res.status(500).json({ msg: error });
     }
