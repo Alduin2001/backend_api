@@ -20,7 +20,7 @@ export default async function sendMailer(data) {
       from: process.env.EMAIL,
       to: data.user,
       subject: data.subject,
-      html:`<a href="https://almetpt.ru/2020/site/${data.token}">Google, не закидывай в спам. Я тренируюсь</a>`
+      html:`<a href="https://almetpt.ru/2020/site/${data.token}">Пожалуйста, не кидайте в спам. Я тренируюсь</a>`
     });
     return { success: true, message };
   } catch (error) {

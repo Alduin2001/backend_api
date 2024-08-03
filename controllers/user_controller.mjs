@@ -15,19 +15,20 @@ export default class UserController {
         password
       });
       await user.save();
-      return res.status(201).json({msg:'Пользователь создан'});
-      const mail = await sendMailer({
-        user: email,
-        subject: "Для подтверждения",
-        verificationToken: user.verificationToken, // Добавьте это поле в sendMailer
-      });
+      return res.status(201).json({msg:'Пользователь успешно создан'});
+      // const mail = await sendMailer({
+      //   user: email,
+      //   subject: "Для подтверждения",
+      //   verificationToken: user.verificationToken,
+      // });
 
-      if (mail.success) {
-        return res.status(201).json({ msg: "Пользователь успешно создан" });
-      } else {
-        console.log(mail.error);
-        return res.status(500).json({ msg: "Ошибка при отправке письма" });
-      }
+      // if (mail.success) {
+      //   await user.save();
+      //   return res.status(201).json({ msg: "Пользователь успешно создан" });
+      // } else {
+      //   console.log(mail.error);
+      //   return res.status(500).json({ msg: "Ошибка при отправке письма" });
+      // }
     } catch (error) {
       if(error.name=='MongoServerError' && error.code==11000){
         return res.status(400).json({msg:'Такой пользователь уже существует'});
@@ -36,7 +37,7 @@ export default class UserController {
         const errors = Object.values(error.errors).map(err=>err.message);
         return res.status(400).json({ msg:errors });
       }
-      return res.status(500).json({error:dublicate});
+      return res.status(500).json({error});
     }
   }
   static async verifycationFromEmail(req, res) {
@@ -46,7 +47,7 @@ export default class UserController {
       if (!user) {
         return res.status(404).json({ msg: "Пользователя не существует" });
       }
-      user.verifyed = true;
+      user.verified = true;
       await user.save();
       res.status(200).json({ msg: "Ваша почта подтверждена" });
     } catch (error) {
@@ -64,7 +65,7 @@ export default class UserController {
         _id: findUser._id,
         name: findUser.name,
         surname: findUser.surname,
-        login: findUser.login,
+        email: findUser.email,
       };
       const token = await setToken(tokenData);
       res.status(200).json({ token: token });
@@ -124,7 +125,8 @@ export default class UserController {
   static async update(req, res) {
     try {
       const id = req.params.id;
-      const { name, surname, patronymic } = req.body;
+      const { name, surname, patronymic, email } = req.body;
+      // Переделать
       const user = await User.findByIdAndUpdate(
         id,
         { name, surname, patronymic },
