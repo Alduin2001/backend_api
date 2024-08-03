@@ -16,25 +16,27 @@ export default class UserController {
       });
       await user.save();
       return res.status(201).json({msg:'Пользователь создан'});
-      // const mail = await sendMailer({
-      //   user: email,
-      //   subject: "Для подтверждения",
-      //   verificationToken: user.verificationToken, // Добавьте это поле в sendMailer
-      // });
+      const mail = await sendMailer({
+        user: email,
+        subject: "Для подтверждения",
+        verificationToken: user.verificationToken, // Добавьте это поле в sendMailer
+      });
 
-      // if (mail.success) {
-      //   return res.status(201).json({ msg: "Пользователь успешно создан" });
-      // } else {
-      //   console.log(mail.error);
-      //   return res.status(500).json({ msg: "Ошибка при отправке письма" });
-      // }
+      if (mail.success) {
+        return res.status(201).json({ msg: "Пользователь успешно создан" });
+      } else {
+        console.log(mail.error);
+        return res.status(500).json({ msg: "Ошибка при отправке письма" });
+      }
     } catch (error) {
+      if(error.name=='MongoServerError' && error.code==11000){
+        return res.status(400).json({msg:'Такой пользователь уже существует'});
+      }
       if(error.name=='ValidationError'){
         const errors = Object.values(error.errors).map(err=>err.message);
         return res.status(400).json({ msg:errors });
       }
-      return res.status(500).json({msg:error});
-      
+      return res.status(500).json({error:dublicate});
     }
   }
   static async verifycationFromEmail(req, res) {

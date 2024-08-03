@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-
+import validators from "../config/validators.mjs";
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
         validate: {
             validator: function(prop) {
-                return /^[А-Яа-я]+$/.test(prop);
+                return validators[0].pattern.test(prop);
             },
-            message: 'Имя должно быть кириллицей'
+            message: `Имя ${validators[0].message}`
         }
     },
     surname: {
@@ -18,9 +18,9 @@ const userSchema = new mongoose.Schema({
         required: true,
         validate: {
             validator: function(prop) {
-                return /^[А-Яа-я]+$/.test(prop);
+                return validators[0].pattern.test(prop);
             },
-            message: 'Фамилия должна быть кириллицей'
+            message: `Фамилия ${validators[0].message}`
         }
     },
     patronymic: {
@@ -28,9 +28,9 @@ const userSchema = new mongoose.Schema({
         required: true,
         validate: {
             validator: function(prop) {
-                return /^[А-Яа-я]+$/.test(prop);
+                return validators[0].pattern.test(prop);
             },
-            message: 'Отчество должно быть кириллицей'
+            message: `Отчество ${validators[0].message}`
         }
     },
     email: {
@@ -39,9 +39,9 @@ const userSchema = new mongoose.Schema({
         unique: true,
         validate: {
             validator: function(prop) {
-                return /^\S+@\S+\.\S+$/.test(prop);
+                return validators[1].pattern.test(prop);
             },
-            message: 'Поле не является почтой'
+            message: validators[1].message
         }
     },
     password: {
