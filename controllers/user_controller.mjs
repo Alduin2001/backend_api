@@ -57,9 +57,10 @@ export default class UserController {
   static async login(req, res) {
     try {
       const { email, password } = req.body;
-      const findUser = await User.findOne({ email: email, verifyed: true });
-      if (!findUser || bcrypt.compareSync(password, findUser.password)) {
-        res.status(400).json({ msg: "Неправильный логин или пароль" });
+      const findUser = await User.findOne({ email: email, verified: true });
+      console.log(findUser);
+      if (!findUser || !(bcrypt.compare(password, findUser.password))) {
+        return res.status(400).json({ msg: "Неправильный логин или пароль" });
       }
       const tokenData = {
         _id: findUser._id,
@@ -120,6 +121,16 @@ export default class UserController {
       res.status(201).json({ user });
     } catch (err) {
       res.status(500).json({ msg: err });
+    }
+  }
+  static async updateProfile(req,res){
+    try {
+      const {name,surname,patronymic,email} = req.body;
+      const user = await User.updateOne({email},{name,surname,patronymic});
+      const updatedUser = await User.findOne({email},'name surname patronymic email').lean();
+      res.status(200).json({msg:'Профиль обновлён',user:updatedUser});
+    } catch (error) {
+      res.status(500).json({error});
     }
   }
   static async update(req, res) {
